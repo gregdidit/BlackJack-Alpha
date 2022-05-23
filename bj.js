@@ -3,24 +3,22 @@ let cardIndex = 0;
 let cl = console.log;
 let playerHand = [];
 let playerTotal = 0;
-let playerState;
 let shuffledCards = [];
 let cardId = 0;
 let rawDeck = new deck();
-let reply = "";
+
+let clicked = document.getElementById('buttonTrigger');
 
 
 function randomNum() {
     cardIndex = (Math.floor(Math.random() * 51));
 }
 
-
 function card(value, name, suit) {
     this.value = value;
     this.name = name;
     this.suit = suit;
 }
-
 
 function deck() {
     this.names = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
@@ -55,34 +53,34 @@ function firstDraw() {
 current total: ` + (playerHand[0].value + playerHand[1].value));
 }
 
-function addCard(cardiD) {
+function addCard() {
     cardIndex = playerHand.length;
     for (let i = 0; i < playerHand.length; i++) {
         playerHand[cardIndex] = shuffledCards[cardIndex];
         cardId = cardIndex;
     }
     cl(`Card added: ${playerHand[cardIndex].name} of ${playerHand[cardIndex].suit}`)
-    return cardiD = cardIndex
 }
 
 function displayTotal() {
     playerTotal = 0; //on each call of the fuction the score goes to 1
     const resultsh = []; //temp empty array for the card text to go in
     for (i = 0; i < playerHand.length; i++) {
-        showCard = `${playerHand[i].name} of ${playerHand[i].suit}` //grabs and joins each card name (name, suit)
+        showCard = ` ${playerHand[i].name} of ${playerHand[i].suit}` //grabs and joins each card name (name, suit)
         playerTotal = playerTotal + playerHand[i].value; //add thep layer total for the current hand
         resultsh.push(showCard); //adds current card on itteration to deck
     }
     cl(`Current total is: ${playerTotal} with ${playerHand.length} cards`);
-    cl(...resultsh); // trying to display all cards from the array in the console
-    // cl(...`${resultsh.value}`);
-    cl(resultsh);
+    cl(`Drawn cards are:${resultsh}`); // trying to display all cards from the array in the console
+    if (playerTotal > 21) {
+        cl(`you've gone bust`);
+    }
 }
 
+buttonTrigger.addEventListener('click', () => {
+    addCard()
+    displayTotal()
+});
 
 shuffle();
 firstDraw();
-addCard();
-displayTotal();
-addCard();
-displayTotal();
