@@ -3,6 +3,7 @@ scss/page_styles/_blackjack.scss
 scss/assets/_variables.scss
 scss/assets/_typography.scss
 scss/_index.scss
+scss/style.scss
 dist/css/style.min.css.map
 css/style.css.map
 assets/fonts/stylesheet.css
@@ -14,3 +15,4 @@ assets/fonts/hkgrotesk-medium-webfont.woff2
 assets/fonts/hkgrotesk-light-webfont.woff2
 assets/fonts/hkgrotesk-bold-webfont.woff2
 dist/css/style.min.css
+functionsetup.js
