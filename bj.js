@@ -3,10 +3,12 @@ const cl = console.log;
 let cardIndex = 0;
 let playerHand = [];
 let playerTotal = 0;
+let playerFinalTotal = 0;
 let dealerHand = [];
 let dealerTotal = 0;
 let shuffledCards = [];
 let cardId = 0;
+let cardUiPosition = 0;
 let playerTurn = true;
 let playerHold = false;
 const rawDeck = new deck();
@@ -14,11 +16,15 @@ const rawDeck = new deck();
 const hitBtn = document.getElementById('hit');
 const standBtn = document.getElementById('stand');
 const refreshBtn = document.getElementById('playagainbtn-top');
+const refreshBtnbtm = document.getElementById('playagain-bottom');
 
 const playerScoreOutput = document.getElementById('player-score');
 const playerOutcomeOutput = document.getElementById('player-outcome');
 const playerResultOutput = document.getElementById('player-result');
 
+const dealerScoreOutput = document.getElementById('dealer-score');
+const dealerOutcomeOutput = document.getElementById('dealer-outcome');
+const dealerResultOutput = document.getElementById('dealer-result');
 
 const cardHtml = [{
         suit: "Heart",
@@ -42,15 +48,12 @@ const cardHtml = [{
     },
 ]
 
-const cardTopIcon = document.getElementById('card-icon-top');
-const cardFrontValue = document.getElementById('card-value');
-const cardBottomIcon = document.getElementById('card-icon-bottom');
+const cardTopIcon = document.getElementsByClassName('card-top');
+const cardFrontValue = document.getElementsByClassName('card-value');
+const cardBottomIcon = document.getElementsByClassName('card-bottom');
 
 const playerCard = document.getElementsByClassName('playerCard');
 const dealerCard = document.getElementsByClassName('dealerCard');
-
-
-
 
 function randomNum() {
     cardIndex = (Math.floor(Math.random() * 51));
@@ -93,35 +96,70 @@ function firstDraw() {
     playerHand[0] = shuffledCards[0];
     playerHand[1] = shuffledCards[1];
     playerTotal = playerHand[0].value + playerHand[1].value;
+
+    for (var i = 0; i < playerHand.length; i++) {
+        cardUiPosition = i;
+        playerCard[i] = cardFrontCreation(playerHand[i].suit, playerHand[i].name);
+    }
+    playerOutcomeOutput.innerText = `You have a total of ${playerTotal}`;
+    playerScoreOutput.innerText = `First drawn is: ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit}`
     cl(`Drawn cards are: ${playerHand[0].name} of ${playerHand[0].suit} and ${playerHand[1].name} of ${playerHand[1].suit}
 current total: ` + (playerHand[0].value + playerHand[1].value));
     if (playerHand[0].value + playerHand[1].value === 21) {
         playerResultOutput.innerText = "21!!! Congratualtions you have won!";
-        cl('21!!! Congratualtions you have won!')
+        cl('21!!! Congratualtions you have won!');
+        refreshBtn.style.visibility = 'visible';
         playerStop()
     }
     if (playerHand[0].value + playerHand[1].value > 21) {
         playerResultOutput.innerText = "You've gone bust, play again!";
-        cl(`You've gone bust, play again!`)
+        refreshBtn.style.visibility = 'visible';
+        cl(`You've gone bust, play again!`);
         playerStop()
     }
 }
 
-function cardFrontCreation(suit = 1, name = 'Queen') {
-    if (name === 'King') {
-        name = 'K'
+function cardFrontCreation(suit, value) {
+    switch (suit) {
+        case 'Hearts':
+            suit = 0
+            break
+        case 'Diamonds':
+            suit = 1
+            break
+        case 'Spades':
+            suit = 2
+            break
+        case 'Clubs':
+            suit = 3
+            break
+        default:
+            suit = suit;
+            break
     }
-    if (name === 'Queen') {
-        name = 'Q'
+
+    switch (value) {
+        case 'King':
+            value = 'K'
+            break
+        case 'Queen':
+            value = 'Q'
+            break
+        case 'Jack':
+            value = 'J'
+            break
+        case 'Ace':
+            value = 'A'
+            break
+        default:
+            value = value;
+            break
     }
-    if (name === 'Jack') {
-        name = 'J'
-    }
-    cardFrontValue.innerHTML = name;
-    cardTopIcon.innerHTML = cardHtml[suit].html;
-    cardBottomIcon.innerHTML = cardHtml[suit].html;
-    cardTopIcon.style.color = cardHtml[suit].color;
-    cardBottomIcon.style.color = cardHtml[suit].color;
+    cardTopIcon[cardUiPosition].innerHTML = cardHtml[suit].html;
+    cardFrontValue[cardUiPosition].innerHTML = value;
+    cardBottomIcon[cardUiPosition].innerHTML = cardHtml[suit].html;
+    cardTopIcon[cardUiPosition].style.color = cardHtml[suit].color;
+    cardBottomIcon[cardUiPosition].style.color = cardHtml[suit].color;
 }
 
 
@@ -129,39 +167,54 @@ function cardValueCheck() {
     if (playerTurn === true) {
         if (playerTotal > 21) {
             playerStop()
+            playerOutcomeOutput.innerText = `You have a total of ${playerTotal}`;
             playerResultOutput.innerText = "You've gone bust, play again!";
-            cl(`You've gone bust, play again!`);
-        }
-        if (playerTotal === 21) {
-            cl('21!!! Congratualtions you have won!');
-            playerStop()
-        }
-    } else if (playerTurn === false) {
-        if (dealerTotal > 21) {
-            cl(`The Dealer has bust gone bust, you win`);
-            playerStop()
-        }
-        if (dealerTotal === 21 || dealerTotal > playerTotal) {
-            cl(`The dealer has won, Unlucky!`);
+            refreshBtn.style.visibility = 'visible';
+            // cl(`You've gone bust, play again!`);
+        } else if (playerTotal === 21) {
+            // cl('21!!! Congratualtions you have won!');
+            playerOutcomeOutput.innerText = `Total: ${playerTotal}`;
+            playerResultOutput.innerText = '21!!! Congratualtions you have won!';
+            refreshBtn.style.visibility = 'visible';
             playerStop()
         }
     }
-
+    if (playerTurn === false && playerHold === true) {
+        //TODO: Sort the Comparison on the dealers score and convert to a swtich statment
+        if (dealerTotal > 21) {
+            // cl(`The Dealer has gone bust, you win`);
+            dealerResultOutput.innerText = `The Dealer has gone bust, you win`;
+            playerStop();
+        } else if (dealerTotal === 21) {
+            // cl(`The dealer has won with 21, Unlucky!`);
+            dealerResultOutput.innerText = `The dealer has won with 21, Unlucky!`;
+            playerStop()
+        } else if (dealerTotal > playerFinalTotal && dealerTotal < 21) {
+            // cl(`The dealer wins but beating your score, Unlucky!`);
+            dealerResultOutput.innerText = `The dealer wins by beating your score, Unlucky!`;
+            playerStop()
+        } else {
+            setTimeout(addCardDealer, 2000);
+        }
+    }
 }
 
 function addCard() {
     cardIndex = playerHand.length;
     for (let i = 0; i < playerHand.length; i++) {
         playerHand[cardIndex] = shuffledCards[cardIndex];
-        cardId = cardIndex;
+        // cardId = cardIndex;
     }
-    cl(`Card added: ${playerHand[cardIndex].name} of ${playerHand[cardIndex].suit}`)
+    cardUiPosition = cardIndex;
+    playerCard[cardIndex].style.visibility = 'visible';
+    playerCard[cardIndex] = cardFrontCreation(playerHand[cardIndex].suit, playerHand[cardIndex].name);
+    playerOutcomeOutput.innerText = `You have a total of ${playerTotal}`;
+    cl(`Card added: ${playerHand[cardIndex].name} of ${playerHand[cardIndex].suit}`);
 }
 
 function displayTotal() {
-    playerTotal = 0; //on each call of the fuction the score goes to 0
-    // dealerTotal = 0; //on each call of the fuction the
     const resultsh = []; //temp empty array for the card text to go in
+    playerTotal = 0; //on each call of the fuction the score goes to 0
     if (playerTurn === true) {
         for (i = 0; i < playerHand.length; i++) {
             showCard = ` ${playerHand[i].name} of ${playerHand[i].suit}` //grabs and joins each card name (name, suit)
@@ -173,15 +226,16 @@ function displayTotal() {
         cl(`Current total is: ${playerTotal} with ${playerHand.length} cards`);
         cardValueCheck()
     }
-    if (playerTurn == false && playerHold === true) {
+    if (playerTurn === false && playerHold === true) {
+        dealerTotal = 0; //on each call of the fuction the
         for (i = 0; i < dealerHand.length; i++) {
-            showCard = `${dealerHand[i].name} of ${dealerHand[i].suit}`
+            showCard = ` ${dealerHand[i].name} of ${dealerHand[i].suit}`
             dealerTotal = dealerTotal + dealerHand[i].value;
             resultsh.push(showCard);
-            // cl(`The Dealers total is: ${playerTotal} with ${playerHand.length} cards`);
-            // cl(`Current Hand is:${resultsh}`);
-            cardValueCheck()
         }
+        dealerScoreOutput.innerText = `Dealers Hand is: ${resultsh}`;
+        dealerOutcomeOutput.innerText = `Dealers total is: ${dealerTotal}`;
+        cardValueCheck()
     }
 }
 
@@ -192,13 +246,7 @@ function playerStop() {
     hitBtn.style.color = 'grey';
     standBtn.disabled = true;
     standBtn.style.color = 'grey';
-    refreshBtn.style.visibility = 'visible';
 }
-
-function playerStand() {
-    playerStop()
-}
-
 
 hitBtn.addEventListener('click', () => {
     addCard()
@@ -206,39 +254,47 @@ hitBtn.addEventListener('click', () => {
 });
 
 standBtn.addEventListener('click', () => {
+    playerFinalTotal = playerTotal;
     playerHold = true;
+    refreshBtnbtm.style.visibility = 'visible';
     playerStop()
-    playerOutcomeOutput.innerText = `You have stand with a total of ${playerTotal}`;
-    cl(`You have stand with a total of ${playerTotal}`)
-    dealerLogic()
+    playerOutcomeOutput.innerText = `You have stand with a total of ${playerFinalTotal}`;
+    // cl(`You have stand with a total of ${playerFinalTotal}`);
+    dealerLogic();
 })
 
 refreshBtn.addEventListener('click', () => {
     window.location.reload();
 })
-
+refreshBtnbtm.addEventListener('click', () => {
+    window.location.reload();
+})
 
 function dealerLogic() {
-    dealerHand[0] = shuffledCards[cardIndex];
-    dealerHand[1] = shuffledCards[cardIndex + 1];
-    cl('Dealers Turn')
-    addCardDealer()
-    // displayTotal()
+    cl('Dealers Turn');
+    cardId = playerHand.length;
+    dealerHand[0] = shuffledCards[cardId];
+    dealerHand[1] = shuffledCards[cardId + 1];
+    cardUiPosition = dealerCard.length;
+    dealerCard[0].style.visibility = 'visible';
+    dealerCard[1].style.visibility = 'visible';
+    dealerCard[0] = cardFrontCreation(dealerHand[0].suit, dealerHand[0].name);
+    cardUiPosition++;
+    dealerCard[1] = cardFrontCreation(dealerHand[1].suit, dealerHand[1].name);
+    cardUiPosition++;
+    cardId++
+    displayTotal()
 }
 
 function addCardDealer() {
-    cardIndex = dealerHand.length;
-    cardId = cardId + 1;
-    dealerTotal = 0;
-    //TODO: Make loop fuction for dealer
-    // for (let i = 0; i < dealerHand.length; i++) {
-    dealerHand[cardIndex] = shuffledCards[cardId + 2];
-
-    // cl(`Card added: ${dealerHand[i].name} of ${dealerHand[cardIndex].suit}`)
+    i = dealerHand.length;
+    dealerHand[i] = shuffledCards[cardId + 1];
+    dealerCard[i].style.visibility = 'visible';
+    dealerCard[i] = cardFrontCreation(dealerHand[i].suit, dealerHand[i].name);
+    cardUiPosition++;
+    cardId++
+    displayTotal()
 }
-
-
 
 shuffle();
 firstDraw();
-cardFrontCreation()
