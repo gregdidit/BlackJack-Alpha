@@ -5,7 +5,7 @@ This project was help me understand the basics of Javascript working through the
 Also it was good way for me to use git and github.
 
 
-Edit:21/6/22 - This is Blackjack v.1
+Edit: 21/6/22 - This is Blackjack v.1
 
 I've never coded in JavaScript before and it's taken me about 2 and half months to complete this game project from knowing little to nothing.
 
